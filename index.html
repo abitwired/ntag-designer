@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NTAG Sheet Designer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f4f5f7;
+      --panel: #ffffff;
+      --ink: #20242b;
+      --muted: #6d7480;
+      --line: #d9dde4;
+      --accent: #315efb;
+      --paper: #ffffff;
+      --shadow: 0 10px 30px #00000012;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 60px 1fr;
+    }
+
+    header {
+      background: #151922;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 18px;
+    }
+
+    .logo {
+      font-weight: 750;
+      font-size: 17px;
+      letter-spacing: .2px;
+    }
+
+    .header-subtitle {
+      font-size: 12px;
+      color: #aeb5c0;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .btn.dark {
+      background: #252b36;
+      border-color: #3b4350;
+      color: #fff;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: 0;
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .form-header {
+      margin-bottom: 20px;
+    }
+
+    .form-header h2 {
+      font-size: 18px;
+      margin: 0 0 4px;
+    }
+
+    .form-header p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #505762;
+    }
+
+    .section-number {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #eef1f7;
+      color: #505762;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 650;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px #315efb18;
+    }
+
+    .font-size-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .font-size-field label {
+      font-size: 11px;
+      color: #505762;
+    }
+
+    .hint {
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .art-options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .art-option {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px;
+      background: #fafbfc;
+    }
+
+    .art-option-label {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .drop {
+      border: 1.5px dashed #b9bec8;
+      border-radius: 7px;
+      padding: 11px;
+      text-align: center;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .drop input {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .controls .apply {
+      font-weight: 700;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--line);
+      margin: 20px 0;
+    }
+
+    .info-block h2 {
+      font-size: 14px;
+      margin: 0 0 7px;
+    }
+
+    .info-block p {
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .main {
+      overflow: auto;
+      padding: 28px;
+    }
+
+    .stage {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-width: 920px;
+    }
+
+    .paper {
+      width: 816px;
+      height: 1056px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      position: relative;
+      padding: 27px 24px;
+    }
+
+    .sheet-meta {
+      position: absolute;
+      top: 7px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: #9299a4;
+      font-size: 9px;
+      pointer-events: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1.93in);
+      grid-template-rows: repeat(3, 3.15in);
+      height: 100%;
+      justify-content: center;
+      align-content: center;
+      gap: .18in;
+    }
+
+    .card {
+      position: relative;
+      border: 1px dashed #bfc4cc;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+    }
+
+    .card-art {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      width: calc(100% - 28px);
+      height: 52%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 1;
+      z-index: 0;
+      display: block;
+      pointer-events: none;
+      border-radius: 10px;
+    }
+
+    .card-shade {
+      display: none;
+    }
+
+    .card-content {
+      margin-top: auto;
+      position: relative;
+      color: #000000;
+      z-index: 2;
+      padding-top: 10px;
+    }
+
+    .card-title {
+      font-weight: 800;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .card-sub {
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      color: #8b929d;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .card-tools {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      display: none;
+      z-index: 5;
+      gap: 5px;
+    }
+
+    .card:hover .card-tools {
+      display: flex;
+    }
+
+    .card-tools button {
+      border: 0;
+      border-radius: 5px;
+      background: #ffffffdd;
+      padding: 4px 7px;
+      font-size: 11px;
+    }
+
+    @media(max-width:900px) {
+      .workspace {
+        grid-template-columns: 280px 1fr;
+      }
+
+      .main {
+        padding: 18px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: Letter portrait;
+        margin: 0;
+      }
+
+      html,
+      body {
+        width: 8.5in;
+        height: 11in;
+        margin: 0;
+        padding: 0;
+        background: white;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      .app {
+        display: block;
+        width: 8.5in;
+        height: 11in;
+      }
+
+      header,
+      .sidebar {
+        display: none !important;
+      }
+
+      .workspace {
+        display: block;
+        width: 8.5in;
+        height: 11in;
+      }
+
+      .main {
+        padding: 0;
+        margin: 0;
+        width: 8.5in;
+        height: 11in;
+        overflow: visible;
+      }
+
+      .stage {
+        display: block;
+        width: 8.5in;
+        height: 11in;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+      }
+
+      .paper {
+        width: 8.5in;
+        height: 11in;
+        margin: 0;
+        padding: .28in .25in;
+        box-shadow: none;
+        background: white;
+        position: relative;
+      }
+
+      .sheet-meta {
+        display: none;
+      }
+
+      .grid {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, 1.93in);
+        grid-template-rows: repeat(3, 3.15in);
+        justify-content: center;
+        align-content: center;
+        gap: .18in;
+      }
+
+      .card {
+        border: 1px dashed #b8b8b8;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        overflow: hidden;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .card-art {
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .card-tools {
+        display: none !important;
+      }
+
+      .empty {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header>
+      <div class="logo">NTAG Sheet Designer</div>
+      <div class="header-subtitle">8.5 × 11 in · 6 vertical NTAG215 cards</div>
+
+      <div class="header-actions">
+        <button class="btn dark" id="clear">Clear sheet</button>
+        <button class="btn primary" id="print">Print sheet</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+
+      <aside class="sidebar">
+
+        <div class="form-header">
+          <h2>Card editor</h2>
+          <p>Choose a card, add its information, then apply it.</p>
+        </div>
+
+        <div class="section">
+
+          <div class="section-title">
+            <span class="section-number">1</span>
+            Select card
+          </div>
+
+          <div class="field">
+            <label for="slot">Card position</label>
+
+            <select id="slot"></select>
+
+            <div class="hint">
+              Select which card on the sheet you want to edit.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="section">
+
+          <div class="section-title">
+            <span class="section-number">2</span>
+            Card information
+          </div>
+
+          <div class="field">
+            <label for="title">Song or playlist name</label>
+
+            <input
+              id="title"
+              type="text"
+              placeholder="Disney Favorites"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field">
+            <label for="subtitle">Artist or description</label>
+
+            <input
+              id="subtitle"
+              type="text"
+              placeholder="Disney"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field">
+
+            <label>Font size</label>
+
+            <div class="font-size-row">
+
+              <div class="font-size-field">
+                <label for="titleSize">Title</label>
+
+                <input
+                  id="titleSize"
+                  type="number"
+                  min="8"
+                  max="48"
+                  step="1"
+                  value="22"
+                >
+              </div>
+
+              <div class="font-size-field">
+                <label for="subtitleSize">Subtitle</label>
+
+                <input
+                  id="subtitleSize"
+                  type="number"
+                  min="8"
+                  max="36"
+                  step="1"
+                  value="16"
+                >
+              </div>
+
+            </div>
+
+            <div class="hint">
+              Font size is measured in pixels.
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="section">
+
+          <div class="section-title">
+            <span class="section-number">3</span>
+            Artwork
+          </div>
+
+          <div class="art-options">
+
+            <div class="art-option">
+
+              <div class="art-option-label">
+                Use an image URL
+              </div>
+
+              <input
+                id="artUrl"
+                type="text"
+                placeholder="https://example.com/image.jpg"
+                autocomplete="off"
+              >
+
+              <div class="hint">
+                Paste a direct link to the artwork image.
+              </div>
+
+            </div>
+
+            <div class="art-option">
+
+              <div class="art-option-label">
+                Or choose an image from your computer
+              </div>
+
+              <div class="drop">
+                Select an image file
+
+                <input
+                  id="file"
+                  type="file"
+                  accept="image/*"
+                >
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="controls">
+
+          <button
+            class="btn primary apply"
+            id="apply"
+          >
+            Apply to card
+          </button>
+
+          <button
+            class="btn"
+            id="duplicate"
+          >
+            Duplicate
+          </button>
+
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-block">
+          <h2>Card size</h2>
+          <p>
+            Each card is 2.13 × 3.35 inches, matching the vertical
+            orientation of the NTAG215 card.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-block">
+          <h2>Printing</h2>
+          <p>
+            Six cards are arranged on one Letter-size sheet.
+            Print at 100% / Actual Size so the physical dimensions
+            remain accurate.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-block">
+          <h2>Artwork</h2>
+          <p>
+            Uploaded images stay in this browser and are not uploaded
+            anywhere.
+          </p>
+        </div>
+
+      </aside>
+
+      <main class="main">
+
+        <div class="stage">
+
+          <div class="paper">
+
+            <div class="sheet-meta">
+              LETTER · 8.5 × 11 IN
+            </div>
+
+            <div
+              class="grid"
+              id="grid"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <script>
+    const cards = Array.from(
+      { length: 9 },
+      () => ({
+        title: "",
+        subtitle: "",
+        titleSize: 22,
+        subtitleSize: 16,
+        url: "",
+        image: "",
+        bg: "#ffffff",
+        notes: ""
+      })
+    );
+
+    let selected = 0;
+
+    const $ = id => document.getElementById(id);
+    const slot = $("slot");
+
+    /*
+     * Populate card selector.
+     */
+    for (let i = 0; i < 9; i++) {
+      const option = document.createElement("option");
+
+      option.value = i;
+      option.textContent =
+        `Card ${i + 1} · Row ${Math.floor(i / 2) + 1}, Column ${i % 2 + 1}`;
+
+      slot.appendChild(option);
+    }
+
+    /*
+     * Render the entire sheet.
+     */
+    function render() {
+
+      slot.value = selected;
+
+      const selectedCard = cards[selected];
+
+      /*
+       * Populate editor.
+       */
+      $("title").value = selectedCard.title;
+      $("subtitle").value = selectedCard.subtitle;
+      $("titleSize").value = selectedCard.titleSize;
+      $("subtitleSize").value = selectedCard.subtitleSize;
+      $("artUrl").value = selectedCard.url;
+
+      const grid = $("grid");
+
+      grid.innerHTML = "";
+
+      cards.forEach((c, i) => {
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const inner = document.createElement("div");
+        inner.className = "card-inner";
+
+        const imageUrl = c.image || c.url;
+
+        /*
+         * Artwork is rendered as a real IMG element.
+         */
+        if (imageUrl) {
+
+          const art = document.createElement("img");
+
+          art.className = "card-art";
+          art.src = imageUrl;
+          art.alt = "";
+          art.draggable = false;
+
+          art.onerror = () => {
+            art.style.display = "none";
+          };
+
+          inner.appendChild(art);
+        }
+
+        /*
+         * Editing controls.
+         */
+        const tools = document.createElement("div");
+
+        tools.className = "card-tools";
+
+        tools.innerHTML = `
+          <button
+            data-i="${i}"
+            class="edit"
+          >
+            Edit
+          </button>
+
+          <button
+            data-i="${i}"
+            class="blank"
+          >
+            Blank
+          </button>
+        `;
+
+        /*
+         * Empty card message.
+         */
+        const empty = document.createElement("div");
+
+        empty.className = "empty";
+
+        empty.innerHTML =
+          "Click Edit to add artwork<br>and song / playlist details";
+
+        if (c.title || imageUrl) {
+          empty.style.display = "none";
+        }
+
+        /*
+         * Card text.
+         */
+        const content = document.createElement("div");
+
+        content.className = "card-content";
+
+        if (!(c.title || c.subtitle)) {
+          content.style.display = "none";
+        }
+
+        const title = document.createElement("div");
+
+        title.className = "card-title";
+        title.textContent = c.title;
+
+        /*
+         * Apply this card's individual title font size.
+         */
+        title.style.fontSize = `${c.titleSize || 22}px`;
+
+        const subtitle = document.createElement("div");
+
+        subtitle.className = "card-sub";
+        subtitle.textContent = c.subtitle;
+
+        /*
+         * Apply this card's individual subtitle font size.
+         */
+        subtitle.style.fontSize = `${c.subtitleSize || 16}px`;
+
+        content.appendChild(title);
+        content.appendChild(subtitle);
+
+        /*
+         * Layer order:
+         *
+         * Artwork → 0
+         * Text    → 2
+         * Tools   → 5
+         */
+        inner.appendChild(tools);
+        inner.appendChild(empty);
+        inner.appendChild(content);
+
+        card.appendChild(inner);
+        grid.appendChild(card);
+      });
+    }
+
+    /*
+     * Apply editor contents to selected card.
+     */
+    function apply() {
+
+      const c = cards[selected];
+
+      c.title = $("title").value.trim();
+      c.subtitle = $("subtitle").value.trim();
+
+      /*
+       * Store font sizes on the individual card.
+       */
+      c.titleSize = Math.max(
+        8,
+        Math.min(
+          48,
+          parseInt($("titleSize").value, 10) || 22
+        )
+      );
+
+      c.subtitleSize = Math.max(
+        8,
+        Math.min(
+          36,
+          parseInt($("subtitleSize").value, 10) || 16
+        )
+      );
+
+      const art = $("artUrl").value.trim();
+
+      /*
+       * URL artwork takes precedence over an uploaded image.
+       */
+      if (art) {
+        c.url = art;
+        c.image = "";
+      } else {
+        c.url = "";
+      }
+
+      render();
+    }
+
+    /*
+     * Card selector.
+     */
+    slot.onchange = () => {
+      selected = +slot.value;
+      render();
+    };
+
+    /*
+     * Apply.
+     */
+    $("apply").onclick = apply;
+
+    /*
+     * Duplicate selected card.
+     *
+     * Font sizes are duplicated along with the rest
+     * of the card configuration.
+     */
+    $("duplicate").onclick = () => {
+
+      const copy = JSON.parse(
+        JSON.stringify(cards[selected])
+      );
+
+      selected = Math.min(5, selected + 1);
+
+      cards[selected] = copy;
+
+      render();
+    };
+
+    /*
+     * Clear sheet.
+     */
+    $("clear").onclick = () => {
+
+      for (let i = 0; i < cards.length; i++) {
+
+        cards[i] = {
+          title: "",
+          subtitle: "",
+          titleSize: 22,
+          subtitleSize: 16,
+          url: "",
+          image: "",
+          bg: "#ffffff",
+          notes: ""
+        };
+      }
+
+      selected = 0;
+
+      render();
+    };
+
+    /*
+     * Print.
+     *
+     * Wait for artwork images to finish loading
+     * before opening the print dialog.
+     */
+    $("print").onclick = async () => {
+
+      const images = Array.from(
+        document.querySelectorAll(".card-art")
+      );
+
+      await Promise.all(
+        images.map(img => {
+
+          if (img.complete) {
+            return Promise.resolve();
+          }
+
+          return new Promise(resolve => {
+
+            img.addEventListener(
+              "load",
+              resolve,
+              { once: true }
+            );
+
+            img.addEventListener(
+              "error",
+              resolve,
+              { once: true }
+            );
+
+          });
+        })
+      );
+
+      window.print();
+    };
+
+    /*
+     * Local artwork upload.
+     */
+    $("file").onchange = e => {
+
+      const file = e.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+
+        cards[selected].image = reader.result;
+        cards[selected].url = "";
+
+        render();
+      };
+
+      reader.readAsDataURL(file);
+    };
+
+    /*
+     * Card controls.
+     */
+    $("grid").addEventListener("click", e => {
+
+      const button = e.target.closest("button");
+
+      if (!button) {
+        return;
+      }
+
+      selected = +button.dataset.i;
+
+      if (button.classList.contains("blank")) {
+
+        cards[selected] = {
+          title: "",
+          subtitle: "",
+          titleSize: 22,
+          subtitleSize: 16,
+          url: "",
+          image: "",
+          bg: "#ffffff",
+          notes: ""
+        };
+      }
+
+      render();
+    });
+
+    /*
+     * Initial render.
+     */
+    render();
+  </script>
+
+</body>
+
+</html>
